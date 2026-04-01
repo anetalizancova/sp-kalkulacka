@@ -1,6 +1,7 @@
 {
   "name": "sp-kalkulacka",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "description": "Kolik času ztrácíte bez AI? — interaktivní kalkulačka (Aibility SP lead magnet)"
 }
