@@ -55,8 +55,28 @@ export default async function handler(req, res) {
     }
   }
 
-  // 2. Create/update contact in Brevo with tags
+  // 2. Create/update contact in Brevo with attributes + lists
   if (BREVO_KEY) {
+    const TAG_TO_LIST = {
+      'sp-lm-kalkulacka': 233,
+      'sp-lm-prompty': 234,
+      'sp-lm-report': 235,
+      'sp-lm-toolkit': 236,
+      'sp-lm-mozek': 237,
+      'sp-lm-skill': 238,
+      'sp-lm-cheatsheet': 239,
+      'sp-lm-navyky': 240,
+      'sp-lm-obor': 241,
+    };
+
+    const masterListId = process.env.BREVO_LIST_ID
+      ? parseInt(process.env.BREVO_LIST_ID)
+      : 232;
+    const lmTag = tag || 'sp-lm-kalkulacka';
+    const specificListId = TAG_TO_LIST[lmTag];
+    const listIds = [masterListId];
+    if (specificListId) listIds.push(specificListId);
+
     try {
       const brevoRes = await fetch('https://api.brevo.com/v3/contacts', {
         method: 'POST',
@@ -69,12 +89,10 @@ export default async function handler(req, res) {
           email,
           updateEnabled: true,
           attributes: {
-            SP_LEAD_MAGNET: tag || 'sp-lm-kalkulacka',
+            SP_LEAD_MAGNET: lmTag,
             SP_CALCULATOR_HOURS: results?.weeklyHours || 0,
           },
-          listIds: process.env.BREVO_LIST_ID
-            ? [parseInt(process.env.BREVO_LIST_ID)]
-            : [],
+          listIds,
         }),
       });
 
