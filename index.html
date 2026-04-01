@@ -464,7 +464,24 @@ function updDots(){
     if(st===cur)d.classList.add('now');
   });
 }
-document.addEventListener('DOMContentLoaded',initDots);
+document.addEventListener('DOMContentLoaded',()=>{
+  initDots();
+  const rp=new URLSearchParams(location.search).get('r');
+  if(rp){
+    try{
+      const vals=atob(rp.replace(/-/g,'+').replace(/_/g,'/')).split(',').map(Number);
+      if(vals.length===8&&vals.every(v=>!isNaN(v))){
+        for(let i=0;i<8;i++)ans['q'+(i+1)]=vals[i];
+        cur=T;
+        document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+        document.querySelectorAll('.step')[T].classList.add('active');
+        const bar=document.getElementById('pBar'),fill=document.getElementById('pFill');
+        bar.classList.add('vis');fill.style.width='100%';
+        updDots();render();
+      }
+    }catch(e){console.error('Invalid results token',e)}
+  }
+});
 const C={
   q1:{r:.55,l:'Emaily a\u00a0komunikace',i:'📧',d:'AI draft, sumarizace, šablony',m:'Konverzační'},
   q2:{r:.65,l:'Reporty a\u00a0prezentace',i:'📊',d:'Generování, analýza, vizualizace',m:'Builder'},
