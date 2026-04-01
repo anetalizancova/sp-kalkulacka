@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kolik času ztrácíte bez AI? — Aibility</title>
+<meta name="color-scheme" content="dark only">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --violet:#C0ADFF;--violet-dim:rgba(192,173,255,.12);--violet-glow:rgba(192,173,255,.06);
+  --bg:#0C0C18;--bg2:#14142A;--bg3:#1C1C36;
+  --fg:#E8E8F0;--fg2:#7B7B9E;--fg3:#4A4A6A;
+  --outline:rgba(255,255,255,.06);--outline2:rgba(255,255,255,.10);
+  --font-d:'Hedvig Letters Serif',Georgia,serif;
+  --font-b:'Geist',system-ui,-apple-system,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);--ease-q:cubic-bezier(.25,1,.5,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);color:var(--fg);background:var(--bg);line-height:1.4;font-size:1rem;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* Logo */
+.logo-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(12,12,24,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--outline);display:flex;align-items:center;justify-content:center;height:56px}
+.logo-bar img{height:22px;width:auto;filter:invert(1)}
+
+/* Progress */
+.prog-c{position:fixed;top:56px;left:0;right:0;z-index:99;opacity:0;transition:opacity .3s}
+.prog-c.vis{opacity:1}
+.prog-t{height:2px;background:var(--outline)}
+.prog-f{height:100%;background:var(--violet);transition:width .6s var(--ease);width:0}
+
+.wrap{width:100%;max-width:580px;margin:0 auto;padding:24px 20px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+
+/* Steps */
+.step{display:none}
+.step.active{display:flex;flex-direction:column}
+.step.active .anim-1{animation:enter .6s var(--ease) both}
+.step.active .anim-2{animation:enter .6s var(--ease) .08s both}
+.step.active .anim-3{animation:enter .6s var(--ease) .16s both}
+.step.active .anim-4{animation:enter .6s var(--ease) .24s both}
+.step.active .anim-5{animation:enter .6s var(--ease) .32s both}
+.step.active .anim-6{animation:enter .6s var(--ease) .4s both}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* Hero */
+.hero{padding:96px 0 40px}
+.hero-tag{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin-bottom:24px}
+.hero h1{font-family:var(--font-d);font-size:clamp(2.8rem,8vw,4.5rem);line-height:1.05;letter-spacing:-.03em;margin-bottom:20px}
+.hero p{font-size:1.1rem;color:var(--fg2);max-width:440px;line-height:1.6;margin-bottom:40px}
+.hero-foot{display:flex;gap:20px;font-size:.82rem;color:var(--fg3);font-weight:500;margin-top:24px}
+
+/* Btns */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-b);font-weight:700;border:none;cursor:pointer;transition:transform .15s var(--ease-q),opacity .15s,box-shadow .2s}
+.btn:active{transform:scale(.97)!important}
+.btn-p{font-size:1rem;padding:16px 32px;background:var(--fg);color:var(--bg);border-radius:8px}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,232,240,.08)}
+.btn-p:disabled{opacity:.25;cursor:not-allowed;transform:none!important;box-shadow:none}
+.btn-v{font-size:1rem;padding:16px 32px;background:var(--violet);color:var(--bg);border-radius:8px}
+.btn-v:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(192,173,255,.15)}
+.btn-g{background:none;color:var(--fg3);font-size:.9rem;font-weight:600;padding:12px 16px}
+.btn-g:hover{color:var(--fg2)}
+
+/* Q card */
+.qc{background:var(--bg2);border-radius:16px;padding:40px 32px;border:1px solid var(--outline);margin-top:40px}
+.qn{font-size:11px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.q-dots{display:flex;gap:4px;margin-bottom:20px}
+.q-dot{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;border:1.5px solid var(--outline);color:var(--fg3);transition:all .2s var(--ease-q);user-select:none}
+.q-dot.done{background:var(--violet-dim);border-color:var(--violet);color:var(--violet);cursor:pointer}
+.q-dot.done:hover{background:rgba(192,173,255,.22);transform:scale(1.08)}
+.q-dot.now{border-color:var(--fg2);color:var(--fg)}
+.qt{font-family:var(--font-d);font-size:1.45rem;line-height:1.25;margin-bottom:8px}
+.qd{font-size:.92rem;color:var(--fg2);margin-bottom:28px;line-height:1.55}
+
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:16px;padding:14px 18px;border:1.5px solid var(--outline);border-radius:12px;cursor:pointer;transition:all .2s var(--ease-q);font-size:.92rem;font-weight:500}
+.opt:hover{border-color:var(--outline2);background:rgba(255,255,255,.02)}
+.opt.sel{border-color:var(--violet);background:var(--violet-dim)}
+.opt-i{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;transition:background .2s}
+.opt.sel .opt-i{background:rgba(192,173,255,.18)}
+.opt-l{flex:1}.opt-t{font-size:.78rem;color:var(--fg3);font-weight:600;white-space:nowrap}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--outline)}
+
+/* Interstitial */
+.inter{padding:80px 0}
+.inter-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--violet);margin-bottom:16px}
+.inter h2{font-family:var(--font-d);font-size:clamp(1.5rem,4vw,2rem);line-height:1.25;margin-bottom:16px}
+.inter p{font-size:1rem;color:var(--fg2);max-width:440px;line-height:1.6;margin-bottom:24px}
+.inter-box{background:var(--bg2);border:1px solid var(--outline);border-radius:12px;padding:20px 24px;font-size:.92rem;line-height:1.55;color:var(--fg2);border-left:3px solid var(--violet);margin-bottom:32px}
+.inter-box strong{color:var(--fg)}
+
+/* Email */
+.ecard{background:var(--bg2);border-radius:16px;padding:48px 32px;border:1px solid var(--outline);margin-top:40px;position:relative;overflow:hidden}
+.ecard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--violet),transparent)}
+.ecard h2{font-family:var(--font-d);font-size:1.7rem;line-height:1.2;margin-bottom:12px}
+.ecard>p{color:var(--fg2);font-size:.92rem;line-height:1.55;margin-bottom:32px;max-width:400px}
+.eform{display:flex;flex-direction:column;gap:12px}
+.einp{font-family:var(--font-b);font-size:1rem;padding:14px 18px;border:1.5px solid var(--outline2);border-radius:8px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;background:var(--bg);color:var(--fg)}
+.einp:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-glow)}
+.einp::placeholder{color:var(--fg3)}
+.epriv{font-size:.78rem;color:var(--fg3);margin-top:4px}
+.eskip{margin-top:12px;text-align:center}
+.eskip button{font-size:.8rem;color:var(--fg3);text-decoration:underline;background:none;border:none;cursor:pointer;transition:color .15s}
+.eskip button:hover{color:var(--fg2)}
+
+/* Results */
+.res{padding:40px 0 64px}
+.res-hero{margin-bottom:48px}
+.res-hero .tl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--violet);margin-bottom:12px}
+.res-hero .tn{font-family:var(--font-d);font-size:clamp(5rem,16vw,8rem);line-height:.9;letter-spacing:-.04em;position:relative}
+.res-hero .tn::after{content:'';position:absolute;bottom:-8px;left:-20px;right:-20px;height:60px;background:radial-gradient(ellipse at center,rgba(192,173,255,.08) 0%,transparent 70%);pointer-events:none;filter:blur(20px)}
+.res-hero .tu{font-size:1.2rem;color:var(--fg2);margin-top:8px}
+.res-hero .tc{font-size:.92rem;color:var(--fg3);margin-top:16px;line-height:1.5}
+
+.rc{background:var(--bg2);border-radius:16px;padding:32px;border:1px solid var(--outline);margin-bottom:12px;opacity:0;animation:enter .5s var(--ease) both}
+.rc:nth-child(1){animation-delay:.1s}
+.rc:nth-child(2){animation-delay:.2s}
+.rc:nth-child(3){animation-delay:.3s}
+.rc h3{font-family:var(--font-d);font-size:1.15rem;margin-bottom:20px;color:var(--fg)}
+
+.bi{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--outline)}
+.bi:last-child{border-bottom:none}
+.bi-i{font-size:1.1rem;width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bi-info{flex:1}.bi-name{font-weight:600;font-size:.88rem}.bi-desc{font-size:.78rem;color:var(--fg3)}
+.bi-h{font-family:var(--font-d);font-size:1.4rem;min-width:52px;text-align:right}
+.bi-h small{font-size:.55em;font-weight:400;color:var(--fg3)}
+
+.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.sb{text-align:center;padding:20px 8px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--outline)}
+.sb .sn{font-family:var(--font-d);font-size:1.7rem;line-height:1}
+.sb .sl{font-size:.72rem;color:var(--fg3);font-weight:600;margin-top:4px}
+
+/* Prompt cards */
+.ps{margin-top:12px}
+.ps h3{font-family:var(--font-d);font-size:1.15rem;margin-bottom:8px}
+.ps>p{font-size:.88rem;color:var(--fg2);margin-bottom:20px;line-height:1.5}
+.pc{background:var(--bg2);border:1px solid var(--outline);border-radius:16px;padding:24px;margin-bottom:12px;transition:border-color .2s,transform .2s var(--ease-q)}
+.pc:hover{border-color:var(--outline2);transform:translateY(-2px)}
+.pc-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.pc-icon{width:40px;height:40px;border-radius:8px;background:var(--violet-dim);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.pc-meta{flex:1}
+.pc-title{font-weight:700;font-size:.92rem}
+.pc-tag{font-size:.72rem;color:var(--fg3)}
+.pc-text{font-size:.82rem;line-height:1.55;color:var(--fg2);background:rgba(255,255,255,.03);border:1px solid var(--outline);border-radius:8px;padding:16px;margin-bottom:12px;white-space:pre-wrap;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--fg3) transparent}
+.pc-text::-webkit-scrollbar{width:4px}.pc-text::-webkit-scrollbar-thumb{background:var(--fg3);border-radius:4px}
+.pc-act{display:flex;gap:8px;flex-wrap:wrap}
+.pc-btn{font-family:var(--font-b);font-size:.78rem;font-weight:600;padding:8px 14px;border-radius:6px;border:1px solid var(--outline2);background:transparent;cursor:pointer;transition:all .15s var(--ease-q);text-decoration:none;color:var(--fg2)}
+.pc-btn:hover{border-color:var(--violet);color:var(--fg);background:var(--violet-dim)}
+.pc-btn.ok{background:var(--violet-dim);border-color:var(--violet);color:var(--violet)}
+
+/* CTA */
+.cta{background:var(--violet-dim);border:1px solid rgba(192,173,255,.15);border-radius:16px;padding:40px 32px;margin-top:24px;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;top:-40%;right:-20%;width:50%;height:100%;background:radial-gradient(circle,rgba(192,173,255,.08) 0%,transparent 60%);pointer-events:none}
+.cta h3{font-family:var(--font-d);font-size:1.5rem;line-height:1.2;margin-bottom:12px;position:relative}
+.cta p{color:var(--fg2);font-size:.92rem;margin-bottom:24px;line-height:1.55;max-width:440px;position:relative}
+.cta-f{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;position:relative}
+.cta-ft{font-size:.78rem;padding:6px 12px;border-radius:9999px;background:rgba(192,173,255,.1);color:var(--violet);font-weight:500;border:1px solid rgba(192,173,255,.15)}
+.cta .btn-v{position:relative}
+
+.share{display:flex;align-items:center;gap:12px;margin-top:24px}
+.share span{font-size:.8rem;color:var(--fg3);font-weight:500}
+.share-b{width:36px;height:36px;border-radius:8px;border:1px solid var(--outline);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s var(--ease-q);color:var(--fg3)}
+.share-b:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-dim)}
+
+@media(max-width:640px){
+  .wrap{padding:20px 16px}
+  .hero{padding:80px 0 32px}
+  .hero h1{font-size:clamp(2.4rem,9vw,3.6rem)}
+  .qc,.ecard{padding:28px 20px}
+  .rc{padding:24px 20px}
+  .cta{padding:32px 20px}
+  .hero-foot{flex-direction:column;gap:8px}
+  .pc{padding:20px 16px}
+  .sr{gap:8px}
+  .res-hero .tn{font-size:clamp(4rem,18vw,6rem)}
+}
+</style>
+</head>
+<body>
+
+<div class="logo-bar"><img src="logo-aibility.png" alt="Aibility" height="22"></div>
+<div class="prog-c" id="pBar"><div class="prog-t"><div class="prog-f" id="pFill"></div></div></div>
+
+<div class="wrap">
+
+<!-- Hero -->
+<div class="step active" data-step="0">
+<div class="hero">
+  <div class="hero-tag anim-1">Bezplatná kalkulačka</div>
+  <h1 class="anim-2">Kolik času ztrácíte bez&nbsp;AI?</h1>
+  <p class="anim-3">Odpovězte na&nbsp;8&nbsp;otázek o&nbsp;vaší práci a&nbsp;zjistěte, kolik hodin týdně vám uniká — plus dostanete personalizované AI&nbsp;prompty přesně pro&nbsp;vaši situaci.</p>
+  <button class="btn btn-p anim-4" onclick="go(1)">Spočítat za&nbsp;2 minuty →</button>
+  <div class="hero-foot anim-5">
+    <span>⏱ 2&nbsp;minuty</span>
+    <span>📊 Osobní výsledek + prompty</span>
+    <span>🔒 Žádný spam</span>
+  </div>
+</div>
+</div>
+
+<!-- Q1 -->
+<div class="step" data-step="1">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 1 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik emailů denně napíšete nebo na&nbsp;ně odpovíte?</div>
+  <div class="qd anim-3">Počítejte všechny pracovní emaily — odpovědi, nové zprávy, přeposílání.</div>
+  <div class="opts anim-4" data-q="q1">
+    <div class="opt" data-v="5" onclick="sel(this)"><div class="opt-i">📨</div><div class="opt-l">Méně než 10</div><div class="opt-t">~25&nbsp;min/den</div></div>
+    <div class="opt" data-v="15" onclick="sel(this)"><div class="opt-i">📧</div><div class="opt-l">10–20 emailů</div><div class="opt-t">~50&nbsp;min/den</div></div>
+    <div class="opt" data-v="30" onclick="sel(this)"><div class="opt-i">📬</div><div class="opt-l">20–40 emailů</div><div class="opt-t">~1,5&nbsp;hod/den</div></div>
+    <div class="opt" data-v="50" onclick="sel(this)"><div class="opt-i">🔥</div><div class="opt-l">Více než 40</div><div class="opt-t">~2,5&nbsp;hod/den</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(0)">← Zpět</button><button class="btn btn-p" id="nb1" onclick="go(2)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="step" data-step="2">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 2 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik času týdně trávíte na&nbsp;reportech a&nbsp;prezentacích?</div>
+  <div class="qd anim-3">Tvorba reportů, shrnutí, prezentací, analýz — vše s&nbsp;výstupním dokumentem.</div>
+  <div class="opts anim-4" data-q="q2">
+    <div class="opt" data-v="0.5" onclick="sel(this)"><div class="opt-i">📄</div><div class="opt-l">Skoro vůbec</div><div class="opt-t">&lt;&nbsp;1&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="2" onclick="sel(this)"><div class="opt-i">📊</div><div class="opt-l">Občas</div><div class="opt-t">1–3&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="5" onclick="sel(this)"><div class="opt-i">📈</div><div class="opt-l">Pravidelně</div><div class="opt-t">3–6&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="8" onclick="sel(this)"><div class="opt-i">💼</div><div class="opt-l">Velká část mé práce</div><div class="opt-t">6+&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(1)">← Zpět</button><button class="btn btn-p" id="nb2" onclick="go(3)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="step" data-step="3">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 3 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik meetingů máte týdně a&nbsp;děláte z&nbsp;nich zápisy?</div>
+  <div class="qd anim-3">Počítejte schůzky, cally, porady — a&nbsp;jestli z&nbsp;nich zapisujete.</div>
+  <div class="opts anim-4" data-q="q3">
+    <div class="opt" data-v="2" onclick="sel(this)"><div class="opt-i">🗓</div><div class="opt-l">1–3 meetingy, bez zápisů</div><div class="opt-t">~30&nbsp;min/týden</div></div>
+    <div class="opt" data-v="5" onclick="sel(this)"><div class="opt-i">📝</div><div class="opt-l">3–5 meetingů, občas zápis</div><div class="opt-t">~2&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="10" onclick="sel(this)"><div class="opt-i">🎯</div><div class="opt-l">5–10 meetingů, většinou zápisy</div><div class="opt-t">~4&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="15" onclick="sel(this)"><div class="opt-i">😵‍💫</div><div class="opt-l">10+ meetingů, zápisy vždy</div><div class="opt-t">~7&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(2)">← Zpět</button><button class="btn btn-p" id="nb3" onclick="go(4)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Inter 1: AI Modes -->
+<div class="step" data-step="4">
+<div class="inter">
+  <div class="inter-l anim-1">Z&nbsp;naší metodiky</div>
+  <h2 class="anim-2">Existují 4&nbsp;způsoby, jak lidé s&nbsp;AI pracují</h2>
+  <p class="anim-3">Ve&nbsp;výzkumu Superpowered Professional™ jsme identifikovali 4&nbsp;AI módy — každý řeší jiný typ ztráty času.</p>
+  <div class="inter-box anim-4">
+    <strong>Konverzační</strong> — brainstorming, analýza, psaní přes dialog<br>
+    <strong>Kreativní</strong> — vizuály, video, design, obsah<br>
+    <strong>Builder</strong> — aplikace, prototypy, nástroje<br>
+    <strong>Orchestrační</strong> — automatizace, workflow, systémy
+  </div>
+  <button class="btn btn-p anim-5" onclick="go(5)">Pokračovat →</button>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="step" data-step="5">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 4 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik času týdně trávíte hledáním informací?</div>
+  <div class="qd anim-3">Googling, čtení článků, hledání v&nbsp;dokumentech, ověřování faktů.</div>
+  <div class="opts anim-4" data-q="q4">
+    <div class="opt" data-v="1" onclick="sel(this)"><div class="opt-i">🔍</div><div class="opt-l">Minimálně</div><div class="opt-t">&lt;&nbsp;1&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="3" onclick="sel(this)"><div class="opt-i">🔎</div><div class="opt-l">Občas hledám</div><div class="opt-t">1–3&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="6" onclick="sel(this)"><div class="opt-i">📚</div><div class="opt-l">Pravidelně research</div><div class="opt-t">3–6&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="10" onclick="sel(this)"><div class="opt-i">🧠</div><div class="opt-l">Research je klíčová část práce</div><div class="opt-t">6+&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(4)">← Zpět</button><button class="btn btn-p" id="nb5" onclick="go(6)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="step" data-step="6">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 5 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik času trávíte manuální prací s&nbsp;daty?</div>
+  <div class="qd anim-3">Kopírování mezi tabulkami, formátování, ruční zadávání, třídění.</div>
+  <div class="opts anim-4" data-q="q5">
+    <div class="opt" data-v="0.5" onclick="sel(this)"><div class="opt-i">📋</div><div class="opt-l">Skoro vůbec</div><div class="opt-t">&lt;&nbsp;1&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="2" onclick="sel(this)"><div class="opt-i">📑</div><div class="opt-l">Občas</div><div class="opt-t">1–3&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="5" onclick="sel(this)"><div class="opt-i">🗂</div><div class="opt-l">Pravidelně</div><div class="opt-t">3–6&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="8" onclick="sel(this)"><div class="opt-i">😤</div><div class="opt-l">Tabulky jsou můj život</div><div class="opt-t">6+&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(5)">← Zpět</button><button class="btn btn-p" id="nb6" onclick="go(7)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Inter 2: Dunning-Kruger -->
+<div class="step" data-step="7">
+<div class="inter">
+  <div class="inter-l anim-1">Data z&nbsp;výzkumu</div>
+  <h2 class="anim-2">78&nbsp;% profesionálů přeceňuje své AI&nbsp;dovednosti</h2>
+  <p class="anim-3">Z&nbsp;dat Superpowered Professional™ assessmentu vyplývá, že největší úspory jsou často tam, kde je nečekáte.</p>
+  <div class="inter-box anim-4">
+    <strong>Každý ztrácí čas jinde.</strong> Proto nestačí obecné rady — potřebujete vědět, co&nbsp;funguje pro&nbsp;VÁŠ typ práce.
+  </div>
+  <button class="btn btn-p anim-5" onclick="go(8)">Zbývají 3&nbsp;otázky →</button>
+</div>
+</div>
+
+<!-- Q6 -->
+<div class="step" data-step="8">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 6 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik času trávíte tvorbou obsahu?</div>
+  <div class="qd anim-3">Texty, social media, články, marketingové materiály, interní komunikace.</div>
+  <div class="opts anim-4" data-q="q6">
+    <div class="opt" data-v="0.5" onclick="sel(this)"><div class="opt-i">✏️</div><div class="opt-l">Skoro vůbec</div><div class="opt-t">&lt;&nbsp;1&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="3" onclick="sel(this)"><div class="opt-i">📝</div><div class="opt-l">Občas píšu</div><div class="opt-t">1–3&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="6" onclick="sel(this)"><div class="opt-i">🖊</div><div class="opt-l">Pravidelně tvořím</div><div class="opt-t">3–6&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="10" onclick="sel(this)"><div class="opt-i">✍️</div><div class="opt-l">Obsah je moje hlavní práce</div><div class="opt-t">6+&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(7)">← Zpět</button><button class="btn btn-p" id="nb8" onclick="go(9)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Q7 -->
+<div class="step" data-step="9">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 7 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik času trávíte plánováním a&nbsp;rozhodováním?</div>
+  <div class="qd anim-3">Strategické rozhodování, plánování projektů, analýza variant, prioritizace.</div>
+  <div class="opts anim-4" data-q="q7">
+    <div class="opt" data-v="0.5" onclick="sel(this)"><div class="opt-i">🎲</div><div class="opt-l">Rozhoduji se rychle</div><div class="opt-t">&lt;&nbsp;1&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="2" onclick="sel(this)"><div class="opt-i">🤔</div><div class="opt-l">Občas se rozhoduji déle</div><div class="opt-t">1–3&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="5" onclick="sel(this)"><div class="opt-i">📐</div><div class="opt-l">Pravidelně plánuji</div><div class="opt-t">3–6&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="8" onclick="sel(this)"><div class="opt-i">♟</div><div class="opt-l">Strategie je denní práce</div><div class="opt-t">6+&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(8)">← Zpět</button><button class="btn btn-p" id="nb9" onclick="go(10)" disabled>Další →</button></div>
+</div>
+</div>
+
+<!-- Inter 3: Archetypes -->
+<div class="step" data-step="10">
+<div class="inter">
+  <div class="inter-l anim-1">Superpowered Professional™</div>
+  <h2 class="anim-2">Každý profesionál má jiný AI&nbsp;archetyp</h2>
+  <p class="anim-3">Naše metodika rozlišuje 6&nbsp;archetypů. Podle archetypu se&nbsp;liší, kde vám AI pomůže nejvíc.</p>
+  <div class="inter-box anim-4">
+    <strong>Architect</strong> — staví workflow a&nbsp;systémy<br>
+    <strong>Navigator</strong> — vidí příležitosti, které ostatní přehlédnou<br>
+    <strong>Builder</strong> — prototypuje a&nbsp;dodává rychle<br>
+    <strong>Catalyst</strong> — učí ostatní a&nbsp;šíří AI v&nbsp;týmu<br>
+    <strong>Amplifier</strong> — násobí dopad celého týmu<br>
+    <strong>Pioneer</strong> — experimentuje s&nbsp;novými možnostmi
+  </div>
+  <button class="btn btn-p anim-5" onclick="go(11)">Poslední otázka →</button>
+</div>
+</div>
+
+<!-- Q8 -->
+<div class="step" data-step="11">
+<div class="qc anim-1">
+  <div class="qn anim-2">Otázka 8 z&nbsp;8</div>
+  <div class="q-dots anim-2"></div>
+  <div class="qt anim-2">Kolik času věnujete učení a&nbsp;sledování novinek?</div>
+  <div class="qd anim-3">Články, kurzy, podcasty, trendy, zkoušení nových nástrojů.</div>
+  <div class="opts anim-4" data-q="q8">
+    <div class="opt" data-v="0.5" onclick="sel(this)"><div class="opt-i">📱</div><div class="opt-l">Minimálně</div><div class="opt-t">&lt;&nbsp;1&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="2" onclick="sel(this)"><div class="opt-i">📰</div><div class="opt-l">Občas čtu novinky</div><div class="opt-t">1–3&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="5" onclick="sel(this)"><div class="opt-i">🎓</div><div class="opt-l">Pravidelně se&nbsp;vzdělávám</div><div class="opt-t">3–6&nbsp;hod/týden</div></div>
+    <div class="opt" data-v="8" onclick="sel(this)"><div class="opt-i">🚀</div><div class="opt-l">Neustále zkouším nové věci</div><div class="opt-t">6+&nbsp;hod/týden</div></div>
+  </div>
+  <div class="qnav anim-5"><button class="btn btn-g" onclick="go(10)">← Zpět</button><button class="btn btn-p" id="nb11" onclick="go(12)" disabled>Zobrazit výsledky →</button></div>
+</div>
+</div>
+
+<!-- Email gate -->
+<div class="step" data-step="12">
+<div class="ecard anim-1">
+  <h2 class="anim-2">Vaše výsledky jsou připraveny</h2>
+  <p class="anim-3">Zadejte email a&nbsp;pošleme vám detailní plán s&nbsp;personalizovanými AI&nbsp;prompty — přesně pro&nbsp;oblasti, kde ztrácíte nejvíc.</p>
+  <form class="eform anim-4" onsubmit="sub(event)">
+    <input type="email" class="einp" id="eIn" placeholder="vas@email.cz" required>
+    <button type="submit" class="btn btn-v" style="width:100%">Zobrazit výsledky a&nbsp;dostat plán</button>
+  </form>
+  <p class="epriv anim-5">🔒 Žádný spam. Vaše data jsou v&nbsp;bezpečí.</p>
+  <div class="eskip anim-6"><button onclick="go(13)">Zobrazit bez emailu</button></div>
+</div>
+</div>
+
+<!-- Results -->
+<div class="step" data-step="13">
+<div class="res">
+  <div class="res-hero">
+    <div class="tl anim-1">Vaše týdenní ztráta</div>
+    <div class="tn anim-2" id="tW">0</div>
+    <div class="tu anim-3">hodin týdně na&nbsp;úkolech, které AI zvládne rychleji</div>
+    <div class="tc anim-4" id="tC"></div>
+    <button class="btn btn-g anim-5" onclick="go(1)" style="margin-top:16px;padding-left:0">← Upravit odpovědi</button>
+  </div>
+  <div class="rc"><h3>Rozpad po&nbsp;kategoriích</h3><div id="bList"></div></div>
+  <div class="rc"><h3>V&nbsp;číslech</h3>
+    <div class="sr">
+      <div class="sb"><div class="sn" id="sM">0</div><div class="sl">hodin / měsíc</div></div>
+      <div class="sb"><div class="sn" id="sY">0</div><div class="sl">hodin / rok</div></div>
+      <div class="sb"><div class="sn" id="sD">0</div><div class="sl">pracovních dní</div></div>
+    </div>
+  </div>
+  <div class="ps rc"><h3>3&nbsp;prompty na&nbsp;míru vaší situaci</h3>
+    <p>Na&nbsp;základě vašich odpovědí — 3&nbsp;oblasti, kde ušetříte nejvíc. Každý prompt je připravený ke&nbsp;zkopírování do&nbsp;Claude, ChatGPT nebo jiného AI&nbsp;asistenta.</p>
+    <div id="pCards"></div>
+  </div>
+  <div class="cta">
+    <h3 class="anim-1">Tohle byly obecné tipy.<br>Chcete je přesně pro&nbsp;VÁS?</h3>
+    <p class="anim-2">Kalkulačka ukázala KDE ztrácíte čas. Superpowered Professional™ test za&nbsp;10&nbsp;minut zjistí PROČ — váš AI&nbsp;archetyp, silné stránky a&nbsp;konkrétní kroky na&nbsp;míru.</p>
+    <div class="cta-f anim-3">
+      <span class="cta-ft">Váš AI archetyp</span>
+      <span class="cta-ft">5&nbsp;superschopností</span>
+      <span class="cta-ft">Personalizované tipy</span>
+      <span class="cta-ft">Sdílitelná karta</span>
+    </div>
+    <a href="https://superpowered.pro/cs" class="btn btn-v anim-4" style="text-decoration:none">Zjistit svůj AI profil →</a>
+  </div>
+  <div class="share anim-5">
+    <span>Sdílet:</span>
+    <button class="share-b" onclick="shareLI()">in</button>
+    <button class="share-b" onclick="copyR()" id="cpB">📋</button>
+  </div>
+</div>
+</div>
+
+</div>
+
+<script>
+let cur=0;const T=13,ans={};
+const QS=[1,2,3,5,6,8,9,11];
+function initDots(){
+  document.querySelectorAll('.q-dots').forEach(el=>{
+    el.innerHTML=QS.map((_,i)=>'<div class="q-dot" data-qi="'+(i+1)+'" data-step="'+QS[i]+'">'+(i+1)+'</div>').join('');
+    el.addEventListener('click',e=>{
+      const d=e.target.closest('.q-dot');if(!d)return;
+      const qi=+d.dataset.qi,st=+d.dataset.step;
+      if(ans['q'+qi]!==undefined||st===cur)go(st);
+    });
+  });
+}
+function updDots(){
+  document.querySelectorAll('.q-dot').forEach(d=>{
+    d.classList.remove('done','now');
+    const qi=+d.dataset.qi,st=+d.dataset.step;
+    if(ans['q'+qi]!==undefined)d.classList.add('done');
+    if(st===cur)d.classList.add('now');
+  });
+}
+document.addEventListener('DOMContentLoaded',initDots);
+const C={
+  q1:{r:.55,l:'Emaily a\u00a0komunikace',i:'📧',d:'AI draft, sumarizace, šablony',m:'Konverzační'},
+  q2:{r:.65,l:'Reporty a\u00a0prezentace',i:'📊',d:'Generování, analýza, vizualizace',m:'Builder'},
+  q3:{r:.50,l:'Meetingy a\u00a0zápisy',i:'📝',d:'Přepisy, shrnutí, akční body',m:'Orchestrační'},
+  q4:{r:.60,l:'Research a\u00a0hledání',i:'🔍',d:'Sumarizace, syntéza, ověřování',m:'Konverzační'},
+  q5:{r:.75,l:'Manuální práce s\u00a0daty',i:'🗂',d:'Automatizace, čištění, třídění',m:'Orchestrační'},
+  q6:{r:.55,l:'Tvorba obsahu',i:'✍️',d:'Drafty, editace, variace',m:'Kreativní'},
+  q7:{r:.45,l:'Plánování a\u00a0rozhodování',i:'♟',d:'Analýza variant, prioritizace',m:'Konverzační'},
+  q8:{r:.50,l:'Učení a\u00a0rozvoj',i:'🎓',d:'Sumarizace, personalizované učení',m:'Konverzační'}
+};
+const H={q1:{5:2,15:4,30:7.5,50:12.5},q2:{.5:.5,2:2,5:5,8:8},q3:{2:.5,5:2,10:4,15:7},q4:{1:.5,3:2,6:5,10:8},q5:{.5:.5,2:2,5:5,8:8},q6:{.5:.5,3:2,6:5,10:8},q7:{.5:.5,2:2,5:5,8:8},q8:{.5:.5,2:2,5:5,8:8}};
+const P={
+  q1:{t:'Email Accelerator',tg:'Konverzační mód · úspora ~55 %',
+    p:'Jsi můj emailový asistent. Pomáhej mi psát a odpovídat na pracovní emaily.\n\nPravidla:\n- Piš stručně, profesionálně, v mém tónu (přátelský ale věcný)\n- Pokud ti pošlu email k odpovědi, navrhni 2 verze: krátkou (2-3 věty) a delší\n- Pokud ti popíšu situaci, napiš email od nuly\n- U důležitých emailů se zeptej na kontext, než začneš psát\n\nZačni tím, že se mě zeptáš na email, se kterým potřebuji pomoct.'},
+  q2:{t:'Report Generator',tg:'Builder mód · úspora ~65 %',
+    p:'Pomoz mi vytvořit [typ reportu/prezentace].\n\nPostup:\n1. Zeptej se mě na téma, účel a cílovou skupinu\n2. Navrhni strukturu (osnovu) — nech mě ji schválit\n3. Pro každou sekci: napiš draft, přidej doporučení pro grafy\n4. Na konci navrhni executive summary (3-5 vět)\n\nFormát: jasné nadpisy, bullet pointy, čísla vždy s kontextem.\nZačni otázkami na můj report.'},
+  q3:{t:'Meeting Summarizer',tg:'Orchestrační mód · úspora ~50 %',
+    p:'Zpracuj tento zápis/přepis z meetingu.\n\nVýstup rozděl na:\n1. SHRNUTÍ (3-5 vět, co se řešilo a k čemu se dospělo)\n2. ROZHODNUTÍ (konkrétní rozhodnutí, která padla)\n3. AKČNÍ BODY (kdo / co / do kdy — tabulka)\n4. OTEVŘENÉ OTÁZKY (co se nevyřešilo a potřebuje follow-up)\n\nBuď stručný. Pokud něco není jasné, označ to [?].\n\nTady je přepis:\n[VLOŽ PŘEPIS]'},
+  q4:{t:'Research Assistant',tg:'Konverzační mód · úspora ~60 %',
+    p:'Potřebuji prozkoumat téma: [TÉMA].\n\nPostup:\n1. Shrň aktuální stav — co je známo, hlavní přístupy\n2. Identifikuj 3-5 nejdůležitějších zjištění\n3. U každého uveď, jak spolehlivá je informace\n4. Navrhni, co bych měl/a zkoumat dál\n\nRozlišuj fakta od odhadů. Pokud si nejsi jistý, řekni to.\nZačni tím, že se zeptáš na kontext mého výzkumu.'},
+  q5:{t:'Data Automator',tg:'Orchestrační mód · úspora ~75 %',
+    p:'Pomoz mi automatizovat práci s daty.\n\nSituace: [POPIŠ, co děláš manuálně]\n\nCo potřebuji:\n1. Analyzuj, které kroky se dají automatizovat\n2. Navrhni postup — formuli v Excelu/Sheets, nebo skript\n3. Vysvětli řešení jako pro někoho, kdo neprogramuje\n4. Navrhni, jak to nastavit, aby to příště šlo jedním klikem\n\nZačni otázkami na mou situaci.'},
+  q6:{t:'Content Co-Creator',tg:'Kreativní mód · úspora ~55 %',
+    p:'Jsi můj kreativní partner pro tvorbu obsahu.\n\nMůj styl: [POPIŠ SVŮJ TÓN]\nPlatforma: [LinkedIn / blog / newsletter]\n\nPostup:\n1. Zeptej se na téma a cíl\n2. Navrhni 3 různé úhly/hooks\n3. Po mém výběru napiš kompletní draft\n4. Nabídni 2-3 varianty nadpisu a závěru\n\nNepřidávej emoji, pokud neřeknu. Piš jako člověk, ne jako AI.\nZačni otázkou na téma.'},
+  q7:{t:'Decision Framework',tg:'Konverzační mód · úspora ~45 %',
+    p:'Pomoz mi se rozhodnout.\n\nSituace: [POPIŠ ROZHODNUTÍ]\n\nPostup:\n1. Zeptej se na kontext, omezení a kritéria\n2. Vytvoř pro/con analýzu pro každou variantu\n3. Ohodnoť varianty podle mých kritérií (1-5)\n4. Doporuč jednu variantu — vysvětli proč\n5. Identifikuj rizika a navrhni, jak je zmírnit\n\nPomáhej mi myslet, ne mysli za mě.\nZačni otázkami na mou situaci.'},
+  q8:{t:'Learning Accelerator',tg:'Konverzační mód · úspora ~50 %',
+    p:'Chci se rychle zorientovat v tématu: [TÉMA].\n\nPostup:\n1. Vysvětli základy — jako pro chytrého člověka, který o tom nic neví\n2. Dej mi „mapu" tématu — hlavní oblasti, koncepty, jak souvisí\n3. Doporuč 3 nejlepší zdroje (články, videa, kurzy)\n4. Navrhni praktické cvičení — co si můžu hned vyzkoušet\n5. Zeptej se, co chci probrat hlouběji\n\nNebuď povrchní, ale ani nepřehlcuj.'}
+};
+
+function sel(el){
+  const p=el.closest('.opts'),q=p.dataset.q;
+  p.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  ans[q]=parseFloat(el.dataset.v);
+  const s=el.closest('.step').dataset.step,b=document.getElementById('nb'+s);
+  if(b)b.disabled=false;
+  updDots();
+}
+function go(to){
+  const steps=document.querySelectorAll('.step');
+  steps[cur].classList.remove('active');
+  cur=Math.max(0,Math.min(to,T));
+  steps[cur].classList.add('active');
+  const bar=document.getElementById('pBar'),fill=document.getElementById('pFill');
+  if(cur===0)bar.classList.remove('vis');
+  else{bar.classList.add('vis');fill.style.width=(cur/T)*100+'%'}
+  window.scrollTo({top:0,behavior:'smooth'});
+  updDots();
+  if(cur===T)render();
+}
+function getUTM(){const p=new URLSearchParams(location.search);return{source:p.get('utm_source')||'',medium:p.get('utm_medium')||'',campaign:p.get('utm_campaign')||''}}
+async function sub(e){
+  e.preventDefault();
+  const em=document.getElementById('eIn').value;if(!em)return;
+  const btn=e.target.querySelector('button[type=submit]');
+  btn.disabled=true;btn.textContent='Odesílám…';
+  const r=calc();
+  try{
+    await fetch('/api/lead-magnet',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:em,
+        tag:'sp-lm-kalkulacka',
+        results:{answers:ans,weeklyHours:r.tw,monthlyHours:r.tm,yearlyHours:r.ty,workDays:r.td},
+        utm:getUTM()
+      })
+    });
+  }catch(err){console.error('API error:',err)}
+  go(13);
+}
+
+function calc(){
+  const bd=[];let tot=0;
+  for(const[q,v]of Object.entries(ans)){const wh=H[q]?.[v]||0,c=C[q],sv=wh*c.r;tot+=sv;bd.push({q,wh,sv:Math.round(sv*10)/10,...c})}
+  bd.sort((a,b)=>b.sv-a.sv);
+  return{tw:Math.round(tot*10)/10,tm:Math.round(tot*4.3),ty:Math.round(tot*48),td:Math.round(tot*48/8),bd};
+}
+function render(){
+  const r=calc();
+  anim('tW',r.tw,1);anim('sM',r.tm,0);anim('sY',r.ty,0);anim('sD',r.td,0);
+  document.getElementById('tC').textContent='To je '+r.tm+'\u00a0hodin měsíčně \u2014 '+r.td+'\u00a0pracovních dní ročně.';
+  document.getElementById('bList').innerHTML=r.bd.map(b=>
+    '<div class="bi"><div class="bi-i">'+b.i+'</div><div class="bi-info"><div class="bi-name">'+b.l+'</div><div class="bi-desc">'+b.d+' · '+b.m+' mód · ~'+Math.round(b.r*100)+'\u00a0%</div></div><div class="bi-h">'+b.sv+'<small>h</small></div></div>'
+  ).join('');
+  const top3=r.bd.slice(0,3);
+  document.getElementById('pCards').innerHTML=top3.map((b,i)=>{
+    const pr=P[b.q],enc=encodeURIComponent(pr.p);
+    return '<div class="pc"><div class="pc-head"><div class="pc-icon">'+b.i+'</div><div class="pc-meta"><div class="pc-title">#'+(i+1)+' '+pr.t+'</div><div class="pc-tag">'+pr.tg+'</div></div></div><div class="pc-text">'+pr.p.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div><div class="pc-act"><button class="pc-btn" onclick="cpP(this,\''+b.q+'\')">Kopírovat prompt</button><a class="pc-btn" href="https://claude.ai/new?q='+enc+'" target="_blank" rel="noopener">Otevřít v\u00a0Claude</a><a class="pc-btn" href="https://chatgpt.com/?q='+enc+'" target="_blank" rel="noopener">Otevřít v\u00a0ChatGPT</a></div></div>';
+  }).join('');
+}
+function cpP(btn,q){navigator.clipboard.writeText(P[q].p).then(()=>{btn.textContent='Zkopírováno ✓';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Kopírovat prompt';btn.classList.remove('ok')},2500)})}
+function anim(id,tgt,dec){
+  const el=document.getElementById(id),dur=1200,st=performance.now();
+  !function tick(now){const t=Math.min((now-st)/dur,1),e=1-Math.pow(1-t,4),c=tgt*e;el.textContent=dec>0?c.toFixed(dec):Math.round(c);if(t<1)requestAnimationFrame(tick)}(st);
+}
+function shareLI(){window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(location.href),'_blank')}
+function copyR(){const r=calc();navigator.clipboard.writeText('Ztrácím '+r.tw+' hod/týden bez AI ('+r.td+' pracovních dní ročně). Spočítejte si to taky!').then(()=>{const b=document.getElementById('cpB');b.textContent='✓';setTimeout(()=>b.textContent='📋',2e3)})}
+</script>
+</body>
+</html>
