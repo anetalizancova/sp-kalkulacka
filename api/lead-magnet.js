@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const BREVO_KEY = process.env.BREVO_API_KEY;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
   const TABLE_NAME = 'Leads';
-  const BASE_URL = process.env.BASE_URL || 'https://sp-kalkulacka.vercel.app';
+  const BASE_URL = process.env.BASE_URL || 'https://aibility.org/kalkulacka';
 
   let resultsToken = '';
   if (results?.answers) {
@@ -22,6 +22,10 @@ export default async function handler(req, res) {
     resultsToken = Buffer.from(vals.join(',')).toString('base64url');
   }
   const resultsUrl = resultsToken ? `${BASE_URL}?r=${resultsToken}` : BASE_URL;
+
+  const weeklyHours = results?.weeklyHours
+    ? Math.round(results.weeklyHours * 10) / 10
+    : 0;
 
   const errors = [];
 
@@ -103,7 +107,7 @@ export default async function handler(req, res) {
           updateEnabled: true,
           attributes: {
             SP_LEAD_MAGNET: lmTag,
-            SP_CALCULATOR_HOURS: results?.weeklyHours || 0,
+            SP_CALCULATOR_HOURS: weeklyHours,
             SP_RESULTS_URL: resultsUrl,
             UTM_SOURCE: utm?.source || '',
             UTM_MEDIUM: utm?.medium || '',
