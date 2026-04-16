@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const BREVO_KEY = process.env.BREVO_API_KEY;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
   const TABLE_NAME = 'Leads';
-  const BASE_URL = process.env.BASE_URL || 'https://aibility.org/kalkulacka';
+  const BASE_URL = (process.env.BASE_URL || 'https://aibility.org/kalkulacka').trim();
 
   let resultsToken = '';
   if (results?.answers) {
@@ -26,6 +26,7 @@ export default async function handler(req, res) {
   const weeklyHours = results?.weeklyHours
     ? Math.round(results.weeklyHours * 10) / 10
     : 0;
+  const weeklyHoursText = String(weeklyHours).replace('.', ',');
 
   const errors = [];
 
@@ -108,6 +109,7 @@ export default async function handler(req, res) {
           attributes: {
             SP_LEAD_MAGNET: lmTag,
             SP_CALCULATOR_HOURS: weeklyHours,
+            SP_HOURS_TEXT: weeklyHoursText,
             SP_RESULTS_URL: resultsUrl,
             UTM_SOURCE: utm?.source || '',
             UTM_MEDIUM: utm?.medium || '',
