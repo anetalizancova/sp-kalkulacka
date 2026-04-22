@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const BREVO_KEY = process.env.BREVO_API_KEY;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
   const TABLE_NAME = 'Leads';
-  const BASE_URL = (process.env.BASE_URL || 'https://aibility.org/kalkulacka').trim();
+  const BASE_URL = process.env.BASE_URL || 'https://aibility.org/kalkulacka';
 
   let resultsToken = '';
   if (results?.answers) {
@@ -23,14 +23,8 @@ export default async function handler(req, res) {
   }
   const resultsUrl = resultsToken ? `${BASE_URL}?r=${resultsToken}` : BASE_URL;
 
-  const weeklyHours = results?.weeklyHours
-    ? Math.round(results.weeklyHours * 10) / 10
-    : 0;
-  const weeklyHoursText = String(weeklyHours).replace('.', ',');
-
   const errors = [];
 
-  // 1. Save to Airtable
   if (AIRTABLE_TOKEN && BASE_ID) {
     try {
       const atRes = await fetch(
@@ -51,10 +45,6 @@ export default async function handler(req, res) {
                   'UTM Source': utm?.source || '',
                   'UTM Medium': utm?.medium || '',
                   'UTM Campaign': utm?.campaign || '',
-                  'UTM Content': utm?.content || '',
-                  'UTM Term': utm?.term || '',
-                  'Referrer': utm?.referrer || '',
-                  'Landing Page': utm?.landing || '',
                 },
               },
             ],
@@ -73,7 +63,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // 2. Create/update contact in Brevo with attributes + lists
   if (BREVO_KEY) {
     const TAG_TO_LIST = {
       'sp-lm-kalkulacka': 233,
@@ -108,8 +97,7 @@ export default async function handler(req, res) {
           updateEnabled: true,
           attributes: {
             SP_LEAD_MAGNET: lmTag,
-            SP_CALCULATOR_HOURS: weeklyHours,
-            SP_HOURS_TEXT: weeklyHoursText,
+            SP_CALCULATOR_HOURS: results?.weeklyHours || 0,
             SP_RESULTS_URL: resultsUrl,
             UTM_SOURCE: utm?.source || '',
             UTM_MEDIUM: utm?.medium || '',
