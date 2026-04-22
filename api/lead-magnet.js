@@ -98,6 +98,9 @@ export default async function handler(req, res) {
           attributes: {
             SP_LEAD_MAGNET: lmTag,
             SP_CALCULATOR_HOURS: results?.weeklyHours || 0,
+            SP_HOURS_TEXT: results?.weeklyHours
+              ? String(results.weeklyHours).replace('.', ',')
+              : '0',
             SP_RESULTS_URL: resultsUrl,
             UTM_SOURCE: utm?.source || '',
             UTM_MEDIUM: utm?.medium || '',
